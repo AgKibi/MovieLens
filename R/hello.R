@@ -26,8 +26,8 @@ library(readr)
 ratings <- read_csv("DbMovieLens/ratings.csv")
 Parsed
   cols(
-    userId = col_double(),
-    movieId = col_double(),
+    userId =  col_double(),
+    movieId =  col_double(),
     rating = col_double(),
     timestamp = col_double()
   )
