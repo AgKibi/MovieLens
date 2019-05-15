@@ -110,11 +110,15 @@ file.rename(title, Rating)
 
 # 2. Checking null and n/a value --------------------------------------------------
 
+ifelse (is.na(links), na.omit(links), newlinks<- na.omit(links))
+ifelse (is.na(movies), na.omit(movies), newmovies<- na.omit(lmovies))
+ifelse (is.na(Rating), na.omit(Rating), newRating<- na.omit(Rating))
+ifelse (is.na(tags), na.omit(tags), newtags<- na.omit(tags))
+
+
+
+
 is.na(Rating)
-
-# 3. Checkin NA value -----------------------------------------------------
-
-is.na()
 
 # SEPARATION DATE FROM TITLE ----------------------------------------------
 
@@ -215,6 +219,11 @@ library(library(shiny),
 
 
 
+# USEFULL -----------------------------------------------------------------
+
+install.packages(c("devtools", "ggplot2", "knitr", "yaml", "htmltools"))devtools::install_github("babynames", "hadley")devtools::install_github("shiny", "rstudio")devtools::install_github("rmarkdown", "rstudio")
+
+
 # USEFULL BUT NOT USED ANYMORE --------------------------------------------
 
 # View(ratings1)
@@ -251,3 +260,19 @@ library(library(shiny),
 # view(ratings1)
 
 # as.numeric(ratings1$RatingDate)
+
+
+
+# # &&& checking code for removing NA value on simple example ---------------
+#
+# try(Rating)
+# userID<- c(1,NA,3,4,5)
+# movieid<- c(6,7,8,9,10)
+# rating<- c(NA, 5, NA, 5, 4)
+# timestamp<- c(944982703,954982703,9634982703,964982703,964952703)
+# ratingdate<- c(2012, 2013, 2014, 2010, 2011)
+#
+# TESTDF<- data.frame(userID, movieid, rating, timestamp, ratingdate)
+# view(TESTDF)
+# ifelse (is.na(TESTDF), na.omit(TESTDF), newDF<- na.omit(TESTDF))
+# view(newDF)
