@@ -67,6 +67,7 @@ library(tidyr)
 library(sqldf)
 library(magrittr)
 library (tidyverse) #for mutate
+library(rlang) #for last_error
 
 # 1. Creating new df "ratings1" with adding a new column "ratingdate" as copy of timestamp from ratings changing date format from Epoch timestamp into readable date (GMT) ---------------------------------------------------
 
@@ -74,7 +75,7 @@ Rating <- ratings %>%
   mutate(ratingdate = as.Date(as.POSIXlt(ratings$timestamp, origin="1970-01-01"))) %>%
 view(Rating, title = NULL)
 
-# saveRDS()
+# save csv
 write.table(Rating, file = "Rating.csv", append = FALSE, sep = " ", dec = ".",
             row.names = TRUE, col.names = TRUE)
 
@@ -108,17 +109,20 @@ sapply(Rating,class)
 file.rename(title, Rating)
 
 
-# 2. Checking null and n/a value --------------------------------------------------
+# 2. Checking n/a value and null --------------------------------------------------
 
 ifelse (is.na(links), na.omit(links), newlinks<- na.omit(links))
 ifelse (is.na(movies), na.omit(movies), newmovies<- na.omit(lmovies))
 ifelse (is.na(Rating), na.omit(Rating), newRating<- na.omit(Rating))
 ifelse (is.na(tags), na.omit(tags), newtags<- na.omit(tags))
 
+is_empty(links)
+is_empty(movies)
+is_empty(Rating)
+is_empty(tags)
 
 
-
-is.na(Rating)
+# is.na(Rating)
 
 # SEPARATION DATE FROM TITLE ----------------------------------------------
 
@@ -126,7 +130,65 @@ is.na(Rating)
 # DIVISION CATEGORY OF FILMS ----------------------------------------------
 
 
+# joining Rating with movies -------------------------------------------
+
+RatMov<- merge(x=movies,y=Rating,by="movieId",all.x=TRUE)
+
+write.table(RatMov, file = "RatMov.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+
+RatMov <- read_csv("R/RatMov.csv")
+Parsed
+cols(
+  movieId = col_double(),
+  imdbId = col_character(),
+  tmdbId = col_double()
+)
+View(RatMov)
+
+
+
 # TOP 5 FROM ACTION -------------------------------------------------------
+sapply(RatMov, class)
+as.double(RatMov$rating)
+mean(RatMov$rating, trim = 2)
+sapply(RatMov, class)
+
+
+Top5Action<- RatMov%>%
+  # arrange(desc())%>%
+  # group_by(ratingdate)%>%
+  group_by(rating)%>%
+  # summarise(mean(ratings))%>%
+  arrange(desc(rating))%>%
+  top_n(5)%>%
+view(Top5Action)
+
+Top5Action<- RatMov%>%
+  # arrange(desc())%>%
+  # group_by(ratingdate)%>%
+  group_by(title())%>%
+view(Top5Action)
+
+
+  # summarise(mean(ratings))%>%
+  arrange(desc(rating))%>%
+  top_n(5)%>%
+
+
+
+
+# Top5Action<- RatMov%>%
+#   as.double(rating)
+#   mutate(MeanRat=summarise(rating))
+#   arrange(desc(rating))%>%
+# view((Top5Action))
+#   # group_by(ratingdate)%>%
+#   # group_by(rating)%>%
+#   # summarise(mean(ratings))%>%
+#   arrange(desc(rating))%>%
+#   top_n(5)%>%
+#   view(Top5Action)
 
 
 # TOP 5 FROM ADVENTURE ----------------------------------------------------
@@ -276,3 +338,5 @@ install.packages(c("devtools", "ggplot2", "knitr", "yaml", "htmltools"))devtools
 # view(TESTDF)
 # ifelse (is.na(TESTDF), na.omit(TESTDF), newDF<- na.omit(TESTDF))
 # view(newDF)
+
+
