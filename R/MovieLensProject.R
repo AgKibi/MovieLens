@@ -68,6 +68,8 @@ library(sqldf)
 library(magrittr)
 library (tidyverse) #for mutate
 library(rlang) #for last_error
+library(foreach)
+library(reshape)
 
 # 1. Creating new df "ratings1" with adding a new column "ratingdate" as copy of timestamp from ratings changing date format from Epoch timestamp into readable date (GMT) ---------------------------------------------------
 
@@ -149,31 +151,48 @@ View(RatMov)
 
 
 # TOP 5 FROM ACTION -------------------------------------------------------
-sapply(RatMov, class)
-as.double(RatMov$rating)
-mean(RatMov$rating, trim = 2)
-sapply(RatMov, class)
+
+# TOP<- tapply(RatMov$rating, RatMov$movieId, mean)
+
+TOP.melt<- melt(RatMov, ID= c("title", "genres"), measured = c("timestamp", "moveId", "rating"))
+head(TOP.melt)
+cast(TOP.melt, formula = ID, fun.aggregate = c(mean))
 
 
-Top5Action<- RatMov%>%
-  # arrange(desc())%>%
-  # group_by(ratingdate)%>%
-  group_by(rating)%>%
-  # summarise(mean(ratings))%>%
-  arrange(desc(rating))%>%
-  top_n(5)%>%
-view(Top5Action)
-
-Top5Action<- RatMov%>%
-  # arrange(desc())%>%
-  # group_by(ratingdate)%>%
-  group_by(title())%>%
-view(Top5Action)
-
-
-  # summarise(mean(ratings))%>%
-  arrange(desc(rating))%>%
-  top_n(5)%>%
+# as.matrix(RatMov)
+# RatMov %>% mutate(meanrating =  if movieIdmean(RatMov$rating)}) %>%
+# view(RatMov)
+#                     group_by(movieId)%>%
+#
+#
+#   view(RatMov)
+#
+#
+# sapply(RatMov, class)
+# as.double(RatMov$rating)
+# mean(RatMov$rating, trim = 2)
+# sapply(RatMov, class)
+#
+#
+# Top5Action<- RatMov%>%
+#   # arrange(desc())%>%
+#   # group_by(ratingdate)%>%
+#   group_by(rating)%>%
+#   # summarise(mean(ratings))%>%
+#   arrange(desc(rating))%>%
+#   top_n(5)%>%
+# view(Top5Action)
+#
+# Top5Action<- RatMov%>%
+#   # arrange(desc())%>%
+#   # group_by(ratingdate)%>%
+#   group_by(title())%>%
+# view(Top5Action)
+#
+#
+#   # summarise(mean(ratings))%>%
+#   arrange(desc(rating))%>%
+#   top_n(5)%>%
 
 
 
