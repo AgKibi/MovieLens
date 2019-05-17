@@ -65,11 +65,13 @@ library(lubridate)
 library(stringr)
 library(tidyr)
 library(sqldf)
-library(magrittr)
+library(magrittr) # for %>% conducting
 library (tidyverse) #for mutate
 library(rlang) #for last_error
 library(foreach)
 library(reshape)
+library(reshape2)
+
 
 # 1. Creating new df "ratings1" with adding a new column "ratingdate" as copy of timestamp from ratings changing date format from Epoch timestamp into readable date (GMT) ---------------------------------------------------
 
@@ -154,9 +156,18 @@ View(RatMov)
 
 # TOP<- tapply(RatMov$rating, RatMov$movieId, mean)
 
-TOP.melt<- melt(RatMov, ID= c("title", "genres"), measured = c("timestamp", "moveId", "rating"))
-head(TOP.melt)
-cast(TOP.melt, formula = ID, fun.aggregate = c(mean))
+# a) rearraging data like "vertical search" in excel ----------------------
+
+TOP.melt<- melt(RatMov, id.var=c("movieId", measure.var="rating"))
+view(TOP.melt)
+
+
+
+TOP5<- cast(TOP.melt, movieId~variable, mean) %>%
+  arrange(desc(rating))
+view(TOP5)
+
+# cast(TOP.melt, formula = ID, fun.aggregate = c(mean))
 
 
 # as.matrix(RatMov)
