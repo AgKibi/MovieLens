@@ -161,10 +161,13 @@ View(RatMov)
 TOP.melt<- melt(RatMov, id.var=c("movieId", measure.var="rating"))
 view(TOP.melt)
 
+# b) calculate mean value of rating for each movieId and sorting them descending
+
+ dcast(TOP.melt, formula = movieId ~ variable, mean)
+TOP.cast <- cast(TOP.melt, movieId ~ variable, mean)
 
 
-TOP5<- cast(TOP.melt, movieId~variable, mean) %>%
-  arrange(desc(rating))
+  # arrange(desc(rating))
 view(TOP5)
 
 # cast(TOP.melt, formula = ID, fun.aggregate = c(mean))
