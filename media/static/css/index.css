@@ -1,0 +1,7 @@
+/* TŁO  STRONY STARTOWEJ */
+body {
+    background: white url("../images/movie.jpg");
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position:0% 0%;
+}
