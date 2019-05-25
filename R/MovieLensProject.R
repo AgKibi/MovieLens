@@ -1,4 +1,12 @@
 
+# WorkingDirectory and rename of the file from hello into MovieLen --------
+
+#
+# setwd(D:'AGNIESZKA/WsbProject/MovieLens/R')
+# getwd()
+#
+# file.rename("hello", "MovieLensProject")
+
 
 # LOADING FILES -----------------------------------------------------------
 library(readr)
@@ -70,8 +78,8 @@ library (tidyverse) #for mutate
 library(rlang) #for last_error
 library(foreach)
 library(reshape)
-library(reshape2)
-
+library(reshape2)#melt i cast function
+library (RSQLite)#DB operation
 
 # 1. Creating new df "ratings1" with adding a new column "ratingdate" as copy of timestamp from ratings changing date format from Epoch timestamp into readable date (GMT) ---------------------------------------------------
 
@@ -92,13 +100,7 @@ cols(
 )
 View(Rating)
 
-# WorkingDirectory and rename of the file from hello into MovieLen --------
 
-#
-# setwd(D:'AGNIESZKA/WsbProject/MovieLens/R')
-# getwd()
-#
-# file.rename("hello", "MovieLensProject")
 
 
 #checking of dimension of ratings table and ratings 1 table
@@ -151,6 +153,16 @@ cols(
 View(RatMov)
 
 
+# summarizing DF RatMov ---------------------------------------------------
+
+summary(RatMov)
+
+# AVERAGE RATINGS CALCULATED IN SQL
+
+RatMov_summary <- RatMov %>%
+  select(-rating) %>%
+  group_by(movies) %>%
+  summarise_all(funs(min, max, mean, median))
 
 # TOP 5 FROM ACTION -------------------------------------------------------
 
@@ -161,11 +173,14 @@ View(RatMov)
 TOP.melt<- melt(RatMov, id.var=c("movieId", measure.var="rating"))
 view(TOP.melt)
 
+MeanRat<- fun.aggregate()
 
 
 TOP5<- cast(TOP.melt, movieId~variable, mean) %>%
   arrange(desc(rating))
 view(TOP5)
+
+
 
 # cast(TOP.melt, formula = ID, fun.aggregate = c(mean))
 
