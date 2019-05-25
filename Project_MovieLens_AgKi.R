@@ -151,20 +151,58 @@ cols(
 View(RatMov)
 
 
+# DATA AGGREGATION_mean and mediana value for rating by movie id --------------------------------------------------------
+RatMean_by_ID<- round(tapply(RatMov$rating, RatMov$movieId, mean, na.rm=TRUE))
 
-# TOP 5 FROM ACTION -------------------------------------------------------
+# colnames(RatMean_by_ID) <- c("movieId", "MeanRaging")
+view(RatMean_by_ID)
+# top_n(RatMean_by_ID)
+
+
+RatMean <- RatMean_by_ID %>%
+  arrange(desc(RatMov$rating)) %>%
+  top_n(5)
+
+
+
+RatMedian_by_ID<- round(tapply(MedianRating=c(RatMov$rating), MovieId=c(RatMov$movieId), median, na.rm=TRUE))
+view(RatMedian_by_ID)
+top_n(5)
+
+
+
+
+library(sqldf)
+MeanMedian <- merge(x=(RatMean_by_ID), y=(RatMedian_by_ID), by="movieId", all=TRUE)
+
+
+# IdRatAggreg<- aggregate(RatMov$rating,
+#                         list(RatMov$title, RatMov$movieId), mean, na.rm=TRUE)
 
 # TOP<- tapply(RatMov$rating, RatMov$movieId, mean)
 
+
+# TOP 5 FROM ACTION -------------------------------------------------------
+
+
+
+
 # a) rearraging data like "vertical search" in excel ----------------------
 
-TOP.melt<- melt(RatMov, id.var=c("movieId", measure.var="rating"))
-view(TOP.melt)
+# Top.melt<- melt(RatMov, id.vars = c("movieId"), measure.vars = "rating") #to jest raczej do tego uk³adu nie potrzebne na razie
+# head(TOP.melt)
+# view(Top.melt)
+
+TOP.cast<- cast()
+
+# TOP.cast<- cast(TOP.melt, movieId~variable, mean)
+# view(TOP.cast)
+
+
 
 # b) calculate mean value of rating for each movieId and sorting them descending
 
- dcast(TOP.melt, formula = movieId ~ variable, mean)
-TOP.cast <- cast(TOP.melt, movieId ~ variable, mean)
+
 
 
   # arrange(desc(rating))
