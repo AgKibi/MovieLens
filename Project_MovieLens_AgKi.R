@@ -71,7 +71,7 @@ library(dplyr)
 library(lubridate)
 library(stringr)
 library(tidyr)
-library(sqldf)
+library(sqldf) # for select function
 library(magrittr) # for %>% conducting
 library (tidyverse) #for mutate
 library(rlang) #for last_error
@@ -79,6 +79,8 @@ library(foreach)
 library(reshape)
 library(reshape2)
 library(recommenderlab)
+library(ggplot2)
+
 
 
 # 1. Creating new df "ratings1" with adding a new column "ratingdate" as copy of timestamp from ratings changing date format from Epoch timestamp into readable date (GMT) ---------------------------------------------------
@@ -139,6 +141,8 @@ is_empty(tags)
 # joining Rating with movies -------------------------------------------
 
 RatMov<- merge(x=movies,y=Rating,by="movieId",all.x=TRUE)%>%
+  Podsumowanie<- table(VecRat)
+View(Podsumowanie)
   # select(title, genres, rating)%>%
 view(RatMov)
 
@@ -186,10 +190,12 @@ View(only2)
 only1<- filter(MeanRating, MeanRating=="1")#filter films only with MeanRating=1
 View(only1)
 
-View(MeanRating)
+
 #HISTOGRAM OF MEAN RATINGS
-
-
+View(MeanRating)
+dim(MeanRating)
+#we have 9737 issue, so
+hist(100, main = "Histogram of mean ratings", xlab = "MeanRating", border = "red", col = "blue", xlim = c(1,5), breaks = 5)
 
 
 only_five<- merge()
@@ -249,6 +255,7 @@ rnorm(RatMean_by_ID)
 
 data("MovieLense")
 MovieLense
+class(MovieLense)
 dim(MovieLense)
 image(as.matrix(similarity_users), main="User similarity")
 VecRat<- as.vector(MovieLense@data)
@@ -256,6 +263,41 @@ unique(VecRat)
 TablRat<- table(VecRat)
 TablRat
 
+# vector_ratings<- as.vector(MovieLense@data)
+# unique(vector_ratings)
+# table_ratings<- table(vector_ratings)
+# table_ratings
+# vector_ratings2<- vector_ratings[vector_ratings != 0]
+# # vector_ratings<- factor(vector_ratings)
+# ggplot(vector_ratings2)+ggtitle("Distribution of the ratings")
+
+
+
+# connection to DBI
+con<- dbConnect((RSQLite::sQlite(), ":MovieLens:")
+dbConnect()
+data("MovieLense")
+dbListTables(conn = MovieLense)
+try(MovieLense)
+MovieLense
+
+ggplot(MovieLense@data)+ggtitle("XXX")
+
+
+
+
+
+
+
+
+average_ratings<- colMeans(MovieLense)
+average_ratings_relevant<- average_ratings[view_per_movie > 100]
+class(average_ratings)
+sapply(average_ratings, class)
+class(average_ratings)
+View(average_ratings)
+
+ggplot(average_ratings)+stat_bin(binwidth = 0,1) + ggtitle("Distribution of the average movie rating")
 
 Occurance_ratings<- table(vector_ratings)
 
