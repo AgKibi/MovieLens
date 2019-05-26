@@ -1,4 +1,9 @@
 
+# WorkingDirectory and rename of the file from hello into MovieLen --------
+
+setwd(D:'AGNIESZKA/WsbProject/MovieLens')
+getwd()
+
 
 # LOADING FILES -----------------------------------------------------------
 library(readr)
@@ -22,6 +27,7 @@ Parsed
   )
 View(movies)
 
+
 library(readr)
 ratings <- read_csv("DbMovieLens/ratings.csv")
 Parsed
@@ -32,6 +38,7 @@ Parsed
     timestamp = col_double()
   )
 View(ratings)
+
 
 library(readr)
 tags <- read_csv("DbMovieLens/tags.csv")
@@ -45,10 +52,10 @@ Parsed
 View(tags)
 
 # Checking of files class -------------------------------------------------
-class(links)
-class(movies)
-class(ratings)
-class(tags)
+class(links) # links is data frame
+class(movies) # movies is data frame
+class(ratings) # ragings is data frame
+class(tags)  # tags is data frame
 
 # CHECKING OF COLUMN CLASS IN DATA.FRAME RATINGS --------------------------
 
@@ -71,6 +78,7 @@ library(rlang) #for last_error
 library(foreach)
 library(reshape)
 library(reshape2)
+library(recommenderlab)
 
 
 # 1. Creating new df "ratings1" with adding a new column "ratingdate" as copy of timestamp from ratings changing date format from Epoch timestamp into readable date (GMT) ---------------------------------------------------
@@ -92,13 +100,7 @@ cols(
 )
 View(Rating)
 
-# WorkingDirectory and rename of the file from hello into MovieLen --------
 
-#
-# setwd(D:'AGNIESZKA/WsbProject/MovieLens/R')
-# getwd()
-#
-# file.rename("hello", "MovieLensProject")
 
 
 #checking of dimension of ratings table and ratings 1 table
@@ -136,7 +138,14 @@ is_empty(tags)
 
 # joining Rating with movies -------------------------------------------
 
-RatMov<- merge(x=movies,y=Rating,by="movieId",all.x=TRUE)
+RatMov<- merge(x=movies,y=Rating,by="movieId",all.x=TRUE)%>%
+  # select(title, genres, rating)%>%
+view(RatMov)
+
+class(RatMov)
+sapply(RatMov, class)
+
+
 
 write.table(RatMov, file = "RatMov.csv", append = FALSE, sep = " ", dec = ".",
             row.names = TRUE, col.names = TRUE)
@@ -151,35 +160,104 @@ cols(
 View(RatMov)
 
 
-# DATA AGGREGATION_mean and mediana value for rating by movie id --------------------------------------------------------
-RatMean_by_ID<- round(tapply(RatMov$rating, RatMov$movieId, mean, na.rm=TRUE))
+# *****************************************************************************************************DATA AGGREGATION_calculation for mean Rating for each films --------------------------------------------------------
+MeanRating_by_title<- round(tapply(RatMov$rating, RatMov$title, mean, na.rm=TRUE))%>%
+class(MeanRating_by_title)# New result is class: array
+# changing array into data.frame
+MeanRating<- as.data.frame.table(MeanRating_by_title)%>%
+colnames(MeanRating)%>% #getting columnn name
+head(MeanRating)%>%
+names(MeanRating)[1]<- "Title"%>% # changing name of column [1] from Var1 into Title
+names(MeanRating)[2]<-  "MeanRating"%>% #changing name of columne [2] from Freq into MeanRating
+head(MeanRating)%>%
+class(MeanRating)%>% #chacking corectness of changing class for MeanRatinf from array into data.frame
+sapply(MeanRating, class)%>%#checking class of variable in data.frame
+view(MeanRating)
+MeanRating_sorted<- arrange(MeanRating, desc(MeanRating)) #data sorted by rating
+head(MeanRating_sorted)
+only5<- filter(MeanRating, MeanRating=="5")#filter films only with MeanRating=5
+View(only5)
+only4<- filter(MeanRating, MeanRating=="4")#filter films only with MeanRating=4
+View(only4)
+only3<- filter(MeanRating, MeanRating=="3")#filter films only with MeanRating=3
+View(only3)
+only2<- filter(MeanRating, MeanRating=="2")#filter films only with MeanRating=2
+View(only2)
+only1<- filter(MeanRating, MeanRating=="1")#filter films only with MeanRating=1
+View(only1)
 
-# colnames(RatMean_by_ID) <- c("movieId", "MeanRaging")
-view(RatMean_by_ID)
-# top_n(RatMean_by_ID)
-
-
-RatMean <- RatMean_by_ID %>%
-  arrange(desc(RatMov$rating)) %>%
-  top_n(5)
+View(MeanRating)
+#HISTOGRAM OF MEAN RATINGS
 
 
 
-RatMedian_by_ID<- round(tapply(MedianRating=c(RatMov$rating), MovieId=c(RatMov$movieId), median, na.rm=TRUE))
-view(RatMedian_by_ID)
-top_n(5)
+
+only_five<- merge()
+  View(only_five)
+  # select(title, genres, rating)%>%
+  view(RatMov)
+
+A<- sqldf("select * from RatMov where rating=5")%>%
+  summarise(RatMov, MeanRating2 = mean(rating))%>%
+View(A)
 
 
 
+
+
+RatMov<- merge(x=movies,y=Rating,by="movieId",all.x=TRUE)%>%
 
 library(sqldf)
-MeanMedian <- merge(x=(RatMean_by_ID), y=(RatMedian_by_ID), by="movieId", all=TRUE)
+ALLs<- sqldf("select * from RatMov")#DZIA£A KOMENDA
+Adventure<- sqldf("select * from RatMov where genres ")
+
+View(Adventure)
 
 
-# IdRatAggreg<- aggregate(RatMov$rating,
-#                         list(RatMov$title, RatMov$movieId), mean, na.rm=TRUE)
 
-# TOP<- tapply(RatMov$rating, RatMov$movieId, mean)
+
+data("MovieLense")
+Adventure<- sqldf("select * genres")
+
+
+#****************************************************** Filtering data by .... --------------------------------------------------
+
+
+
+
+# choosing films with best rating -----------------------------------------
+
+library(sqldf)
+select(MeanRating_by_title, )
+
+# summary for the ratings
+summary(RatMean_by_ID)
+rnorm(RatMean_by_ID)
+#conclusion: mean value is almost the same as median value, so in next calculations we can use mean value and is equal 3.0; there are 18 occurance of .............
+# 0 valuses which means that ............
+
+
+
+
+
+********************************************************# STATISTICS_OCCURANCE ----------------------------------------------------
+
+
+
+
+# *************************************************************************RECOMMENDERLAB ----------------------------------------------------------
+
+data("MovieLense")
+MovieLense
+dim(MovieLense)
+image(as.matrix(similarity_users), main="User similarity")
+VecRat<- as.vector(MovieLense@data)
+unique(VecRat)
+TablRat<- table(VecRat)
+TablRat
+
+
+Occurance_ratings<- table(vector_ratings)
 
 
 # TOP 5 FROM ACTION -------------------------------------------------------
@@ -193,7 +271,6 @@ MeanMedian <- merge(x=(RatMean_by_ID), y=(RatMedian_by_ID), by="movieId", all=TR
 # head(TOP.melt)
 # view(Top.melt)
 
-TOP.cast<- cast()
 
 # TOP.cast<- cast(TOP.melt, movieId~variable, mean)
 # view(TOP.cast)
