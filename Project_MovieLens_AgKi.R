@@ -509,6 +509,28 @@ library(library(shiny),
 
 
 
+# install packages script
+
+install.packages(c("XLConnect",
+                   "RSQLite",
+                   "RODBC",
+                   "RJDBC",
+                   "XML",
+                   "methods",
+                   "dplyr",
+                   "lubridate",
+                   "stringr",
+                   "sqldf",
+                   "datasets",
+                   "ggplot2",
+                   "plotly",
+                   "maps",
+                   "mapdata",
+                   "countrycode",
+                   "flexdashboard",
+                   "rmarkdown"))
+
+
 # USEFULL -----------------------------------------------------------------
 
 install.packages(c("devtools", "ggplot2", "knitr", "yaml", "htmltools"))devtools::install_github("babynames", "hadley")devtools::install_github("shiny", "rstudio")devtools::install_github("rmarkdown", "rstudio")
