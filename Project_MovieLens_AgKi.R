@@ -1,7 +1,7 @@
 
 # WorkingDirectory and rename of the file from hello into MovieLen --------
 
-setwd(D:'AGNIESZKA/WsbProject/MovieLens')
+setwd(D:'AGNIESZKA/WsbProject/MovieLens/R')
 getwd()
 
 
@@ -80,7 +80,7 @@ library(reshape)
 library(reshape2)
 library(recommenderlab)
 library(ggplot2)
-
+library(lattice) #histogram??funckje graficzne_Biecek str 364
 
 
 # 1. Creating new df "ratings1" with adding a new column "ratingdate" as copy of timestamp from ratings changing date format from Epoch timestamp into readable date (GMT) ---------------------------------------------------
@@ -89,7 +89,7 @@ Rating <- ratings %>%
   mutate(ratingdate = as.Date(as.POSIXlt(ratings$timestamp, origin="1970-01-01"))) %>%
 view(Rating, title = NULL)
 
-# save csv
+# save csv and loading of csv
 write.table(Rating, file = "Rating.csv", append = FALSE, sep = " ", dec = ".",
             row.names = TRUE, col.names = TRUE)
 
@@ -138,17 +138,13 @@ is_empty(tags)
 # DIVISION CATEGORY OF FILMS ----------------------------------------------
 
 
-# joining Rating with movies -------------------------------------------
+# joining files: Rating with movies and creating new csv RatMov-------------------------------------------
 
-RatMov<- merge(x=movies,y=Rating,by="movieId",all.x=TRUE)%>%
-  Podsumowanie<- table(VecRat)
-View(Podsumowanie)
-  # select(title, genres, rating)%>%
+RatMov<- merge(x=movies,y=Rating,by="movieId",all.x=TRUE)
 view(RatMov)
-
 class(RatMov)
 sapply(RatMov, class)
-
+  # select(title, genres, rating)%>%
 
 
 write.table(RatMov, file = "RatMov.csv", append = FALSE, sep = " ", dec = ".",
@@ -164,19 +160,46 @@ cols(
 View(RatMov)
 
 
+Podsumowanie<- table(VecRat)
+View(Podsumowanie)
+
+
+
 # *****************************************************************************************************DATA AGGREGATION_calculation for mean Rating for each films --------------------------------------------------------
-MeanRating_by_title<- round(tapply(RatMov$rating, RatMov$title, mean, na.rm=TRUE))%>%
+MeanRating_by_title<- round(tapply(RatMov$rating, RatMov$title, mean, na.rm=TRUE))
 class(MeanRating_by_title)# New result is class: array
-# changing array into data.frame
-MeanRating<- as.data.frame.table(MeanRating_by_title)%>%
-colnames(MeanRating)%>% #getting columnn name
-head(MeanRating)%>%
-names(MeanRating)[1]<- "Title"%>% # changing name of column [1] from Var1 into Title
-names(MeanRating)[2]<-  "MeanRating"%>% #changing name of columne [2] from Freq into MeanRating
-head(MeanRating)%>%
-class(MeanRating)%>% #chacking corectness of changing class for MeanRatinf from array into data.frame
-sapply(MeanRating, class)%>%#checking class of variable in data.frame
+MeanRating<- as.data.frame.table(MeanRating_by_title) # changing array into data.frame
+colnames(MeanRating) #getting columnn name
+head(MeanRating)
+names(MeanRating)[1]<- "Title" # changing name of column [1] from Var1 into Title
+names(MeanRating)[2]<-  "MeanRating" #changing name of columne [2] from Freq into MeanRating
+head(MeanRating)
+class(MeanRating)#chacking corectness of changing class for MeanRatinf from array into data.frame
+sapply(MeanRating, class)#checking class of variable in data.frame
+MeanRating$Title<- as.character(MeanRating$Title)
+sapply(MeanRating, class)
 view(MeanRating)
+
+MeanRating_movies<- merge(x=MeanRating, y=movies[ ,c("movieId", "title", "genres")], by.x = "Title", by.y="title", all.x=TRUE)
+head(MeanRating_movies)
+class(MeanRating_movies)
+sapply(MeanRating_movies, class)
+
+
+write.table(MeanRating_movies, file = "MeanRating_movies.csv", append = FALSE, sep = "  ", dec = ".",
+            row.names = TRUE, col.names = TRUE)#creating csv file as "MeanRating_movies"for merged tables
+
+MeanRating_movies <- read_csv("MeanRating_movies.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+    )
+View(MeanRating_movies)
+class(MeanRating_movies)
+
 MeanRating_sorted<- arrange(MeanRating, desc(MeanRating)) #data sorted by rating
 head(MeanRating_sorted)
 only5<- filter(MeanRating, MeanRating=="5")#filter films only with MeanRating=5
@@ -196,7 +219,7 @@ View(MeanRating)
 dim(MeanRating)
 #we have 9737 issue, so
 hist(100, main = "Histogram of mean ratings", xlab = "MeanRating", border = "red", col = "blue", xlim = c(1,5), breaks = 5)
-
+hist(MeanRating, main = "Histogram of mean ratings", xlab = "MeanRating", border = "red", col = "blue", xlim = c(1,5), breaks = 5)
 
 only_five<- merge()
   View(only_five)
