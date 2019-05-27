@@ -1,0 +1,116 @@
+---
+title: "Project Description"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+source('Part5_source.R')
+
+```
+
+
+SavingsDashboard
+=====================================  
+
+Row
+---------------------
+
+### Map of savings
+
+```{r}
+
+plotMap11
+
+```
+
+Row
+---------------------
+
+### Table of savings
+
+```{r}
+library(DT)
+datatable(Savings)
+
+
+```
+
+
+### Description
+
+Data on the savings ratio 1960–1970. <br>
+A data frame with 50 observations on 5 variables. <br>
+
+* [,1]	 sr	 numeric	 aggregate personal savings
+* [,2]	 pop15	 numeric	 % of population under 15
+* [,3]	 pop75	 numeric	 % of population over 75
+* [,4]	 dpi	 numeric	 real per-capita disposable income
+* [,5]	 ddpi	 numeric	 % growth rate of dpi
+
+
+CarsDashboard
+=====================================
+
+Row {data-height=200}
+-----------------------
+
+### Average Hp
+
+```{r}
+average_hp <- round(mean(mtcars$hp), 0)
+gauge(average_hp, min = 0, max = max(mtcars$hp), symbol = 'hp', gaugeSectors(
+  success = c(80, 100), warning = c(40, 79), danger = c(0, 39)
+))
+```
+
+### Average mpg
+```{r}
+average_mpg <- round(mean(mtcars$mpg), 0)
+gauge(average_mpg, min = 0, max = max(mtcars$mpg), symbol = 'mpg', gaugeSectors(
+  success = c(80, 100), warning = c(40, 79), danger = c(0, 39)
+))
+```
+
+
+Row {data-height=200}
+-----------------------
+
+
+### Number of Brands
+
+```{r}
+
+Brands <- length(mtcars_summary$Brand)
+valueBox(Brands, icon = "glyphicon-pencil")
+
+
+```
+
+### Number of Cars with hp above 100
+
+```{r}
+cars_summary_hp <- mtcars %>%
+  filter(hp>100)
+
+hp100 <- length(cars_summary_hp)
+valueBox(paste(hp100, "/", dim(mtcars)[1], sep = ""), icon = "glyphicon-star")
+
+
+```
+
+Row {data-height=600}
+-----------------------
+
+### Boxplot
+
+```{r}
+
+mtcars_box_plot
+
+```
+
+
