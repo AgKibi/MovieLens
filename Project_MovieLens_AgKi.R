@@ -180,38 +180,53 @@ MeanRating$Title<- as.character(MeanRating$Title)
 sapply(MeanRating, class)
 view(MeanRating)
 
+
+# Joining dataframes: MeanRating with movies for next statistic operations and checking the class of data--------
+
 MeanRating_movies<- merge(x=MeanRating, y=movies[ ,c("movieId", "title", "genres")], by.x = "Title", by.y="title", all.x=TRUE)
 head(MeanRating_movies)
 class(MeanRating_movies)
 sapply(MeanRating_movies, class)
 
 
-write.table(MeanRating_movies, file = "MeanRating_movies.csv", append = FALSE, sep = "  ", dec = ".",
-            row.names = TRUE, col.names = TRUE)#creating csv file as "MeanRating_movies"for merged tables
-
-MeanRating_movies <- read_csv("MeanRating_movies.csv")
+only5<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="5") #data sorted by rating
+view(only5)
+write.table(only5, file = "only5.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+only5 <- read_csv("only5.csv")
 Parsed
 cols(
   Title = col_character(),
   MeanRating = col_double(),
   movieId = col_double(),
   genres = col_character()
-    )
-View(MeanRating_movies)
-class(MeanRating_movies)
+  )
+view(only5)
 
-MeanRating_sorted<- arrange(MeanRating, desc(MeanRating)) #data sorted by rating
-head(MeanRating_sorted)
-only5<- filter(MeanRating, MeanRating=="5")#filter films only with MeanRating=5
-View(only5)
-only4<- filter(MeanRating, MeanRating=="4")#filter films only with MeanRating=4
+only4<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="4")#filter films only with MeanRating=5
 View(only4)
-only3<- filter(MeanRating, MeanRating=="3")#filter films only with MeanRating=3
+write.table(only4, file = "only4.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+
+only3<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="3")#filter films only with MeanRating=4
 View(only3)
-only2<- filter(MeanRating, MeanRating=="2")#filter films only with MeanRating=2
+write.table(only3, file = "only3.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+
+only2<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="2")#filter films only with MeanRating=3
 View(only2)
-only1<- filter(MeanRating, MeanRating=="1")#filter films only with MeanRating=1
+write.table(only2, file = "only2.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+
+only1<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="1")#filter films only with MeanRating=2
 View(only1)
+write.table(only1, file = "only1.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+only0<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="0")#filter films only with MeanRating=1
+View(only0)
+write.table(only0, file = "only0.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+
 
 
 #HISTOGRAM OF MEAN RATINGS
