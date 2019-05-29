@@ -193,6 +193,7 @@ only5<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="5") 
 view(only5)
 write.table(only5, file = "only5.csv", append = FALSE, sep = " ", dec = ".",
             row.names = TRUE, col.names = TRUE)
+
 only5 <- read_csv("only5.csv")
 Parsed
 cols(
@@ -207,34 +208,122 @@ only4<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="4")#
 View(only4)
 write.table(only4, file = "only4.csv", append = FALSE, sep = " ", dec = ".",
             row.names = TRUE, col.names = TRUE)
+only4 <- read_csv("only4.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+)
+view(only4)
 
 only3<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="3")#filter films only with MeanRating=4
 View(only3)
 write.table(only3, file = "only3.csv", append = FALSE, sep = " ", dec = ".",
             row.names = TRUE, col.names = TRUE)
+only3 <- read_csv("only3.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+)
+view(only3)
 
 only2<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="2")#filter films only with MeanRating=3
 View(only2)
 write.table(only2, file = "only2.csv", append = FALSE, sep = " ", dec = ".",
             row.names = TRUE, col.names = TRUE)
 
+only2 <- read_csv("only2.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+)
+view(only2)
+
 only1<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="1")#filter films only with MeanRating=2
 View(only1)
+
 write.table(only1, file = "only1.csv", append = FALSE, sep = " ", dec = ".",
             row.names = TRUE, col.names = TRUE)
+
+only1 <- read_csv("only1.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+)
+view(only1)
+
+
 only0<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="0")#filter films only with MeanRating=1
 View(only0)
 write.table(only0, file = "only0.csv", append = FALSE, sep = " ", dec = ".",
             row.names = TRUE, col.names = TRUE)
 
+only0 <- read_csv("only0.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+)
+view(only0)
 
+onlyNaN<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="NaN")#filter films only with MeanRating="NaN"
+View(onlyNaN)
+write.table(onlyNaN, file = "onlyNaN.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+
+onlyNaN <- read_csv("onlyNaN.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+)
+view(onlyNaN)
 
 #HISTOGRAM OF MEAN RATINGS
 View(MeanRating)
-dim(MeanRating)
-#we have 9737 issue, so
-hist(100, main = "Histogram of mean ratings", xlab = "MeanRating", border = "red", col = "blue", xlim = c(1,5), breaks = 5)
-hist(MeanRating, main = "Histogram of mean ratings", xlab = "MeanRating", border = "red", col = "blue", xlim = c(1,5), breaks = 5)
+dim(MeanRating) #checking the dimension of the table for making a choice of breaks points
+MRVector<- as.vector(unlist(MeanRating$MeanRating)) #conversion column with MeanRating (column[2]) into vector to make possible visualisation of distribution of ratings
+view(MRVector)
+unique(MRVector) #rating equal to 0 represents a missing value, they should be removed
+#the histrogram of mean ratings are shown below:
+hist(MRVector, main = "Mean ratings distribution", xlab = "MeanRating", border = "black", col = "blue", xlim = c(1,5), breaks = 5)
+#now we are remove "0" ---> invaluable movies and "NaN" - not a number
+MRVector<- MRVector[MRVector != 0 & MRVector !="NaN"]
+# the histogram after removin movies that have not been rated is shown below:
+hist(MRVector, main = "Mean ratings distribution without films that have not been rated and without NaN value", xlab = "MeanRating", border = "black", col = "green", xlim = c(1,4), breaks = 3)
+
+#we have 9737 mean ratings (rated films), so
+
+hist(MRVector, main = "Mean ratings distribution", xlab = "MeanRating", border = "red", col = "blue", xlim = c(1,5), breaks = 5)
+# Occurance_ratings<- table(vector_ratings)
+Occurance_ratings<- table(MRVector)
+write.table(Occurance_ratings, file = "Occurance_ratings.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+view(Occurance_ratings)
+
+
+
+
+
+
+
+# slotNames(MeanRating)
+
 
 only_five<- merge()
   View(only_five)
@@ -247,17 +336,13 @@ View(A)
 
 
 
-
-
 RatMov<- merge(x=movies,y=Rating,by="movieId",all.x=TRUE)%>%
 
 library(sqldf)
-ALLs<- sqldf("select * from RatMov")#DZIA£A KOMENDA
+ALLs<- sqldf("select * from RatMov")#DZIA?A KOMENDA
 Adventure<- sqldf("select * from RatMov where genres ")
 
 View(Adventure)
-
-
 
 
 data("MovieLense")
@@ -276,7 +361,9 @@ select(MeanRating_by_title, )
 
 # summary for the ratings
 summary(RatMean_by_ID)
+view(summary(RatMean_by_ID)
 rnorm(RatMean_by_ID)
+
 #conclusion: mean value is almost the same as median value, so in next calculations we can use mean value and is equal 3.0; there are 18 occurance of .............
 # 0 valuses which means that ............
 
@@ -322,12 +409,6 @@ MovieLense
 ggplot(MovieLense@data)+ggtitle("XXX")
 
 
-
-
-
-
-
-
 average_ratings<- colMeans(MovieLense)
 average_ratings_relevant<- average_ratings[view_per_movie > 100]
 class(average_ratings)
@@ -347,7 +428,7 @@ Occurance_ratings<- table(vector_ratings)
 
 # a) rearraging data like "vertical search" in excel ----------------------
 
-# Top.melt<- melt(RatMov, id.vars = c("movieId"), measure.vars = "rating") #to jest raczej do tego uk³adu nie potrzebne na razie
+# Top.melt<- melt(RatMov, id.vars = c("movieId"), measure.vars = "rating") #to jest raczej do tego uk?adu nie potrzebne na razie
 # head(TOP.melt)
 # view(Top.melt)
 
