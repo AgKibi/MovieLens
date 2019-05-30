@@ -1,11 +1,11 @@
 
-# WorkingDirectory and rename of the file from hello into MovieLen --------
+                                                                                # WorkingDirectory
 
 setwd(D:'AGNIESZKA/WsbProject/MovieLens/R')
 getwd()
 
 
-# LOADING FILES -----------------------------------------------------------
+                                                                                  # LOADING FILES
 library(readr)
 links <- read_csv("DbMovieLens/links.csv")
 Parsed
@@ -51,13 +51,16 @@ Parsed
   )
 View(tags)
 
-# Checking of files class -------------------------------------------------
+                                                                                   # CHECKING OF DATA CLASS
+
+
+# Checking of files class
 class(links) # links is data frame
 class(movies) # movies is data frame
 class(ratings) # ragings is data frame
 class(tags)  # tags is data frame
 
-# CHECKING OF COLUMN CLASS IN DATA.FRAME RATINGS --------------------------
+# CHECKING OF COLUMN CLASS IN DATA.FRAME RATINGS
 
 sapply(links, class)
 sapply(movies, class)
@@ -65,7 +68,9 @@ sapply(ratings, class)
 sapply(tags, class)
 
 
-# PREPARING DATA---------------------------------------
+                                                                                   # LIBRARY THAT YOU WILL NEED
+
+
 
 library(dplyr)
 library(lubridate)
@@ -81,15 +86,15 @@ library(reshape2)
 library(recommenderlab)
 library(ggplot2)
 library(lattice) #histogram??funckje graficzne_Biecek str 364
+library(shiny)
 
-
-# 1. Creating new df "ratings1" with adding a new column "ratingdate" as copy of timestamp from ratings changing date format from Epoch timestamp into readable date (GMT) ---------------------------------------------------
-
+                                                        # Creating new df "ratings1" with adding a new column "ratingdate" as copy of timestamp from ratings
+                                                                    # changing date format from Epoch timestamp into readable date (GMT)
 Rating <- ratings %>%
   mutate(ratingdate = as.Date(as.POSIXlt(ratings$timestamp, origin="1970-01-01"))) %>%
 view(Rating, title = NULL)
 
-# save csv and loading of csv
+                                                                                # SAVING RESULTS AS .csv FILES  AND LOADING OF .csv FILES
 write.table(Rating, file = "Rating.csv", append = FALSE, sep = " ", dec = ".",
             row.names = TRUE, col.names = TRUE)
 
@@ -117,12 +122,14 @@ sapply(Rating,class)
 file.rename(title, Rating)
 
 
-# 2. Checking n/a value and null --------------------------------------------------
+                                                                            # Checking n/a value and null
 
-ifelse (is.na(links), na.omit(links), newlinks<- na.omit(links))
-ifelse (is.na(movies), na.omit(movies), newmovies<- na.omit(lmovies))
-ifelse (is.na(Rating), na.omit(Rating), newRating<- na.omit(Rating))
-ifelse (is.na(tags), na.omit(tags), newtags<- na.omit(tags))
+
+#
+# ifelse (is.na(links), na.omit(links), newlinks<- na.omit(links))
+# ifelse (is.na(movies), na.omit(movies), newmovies<- na.omit(lmovies))
+# ifelse (is.na(Rating), na.omit(Rating), newRating<- na.omit(Rating))
+# ifelse (is.na(tags), na.omit(tags), newtags<- na.omit(tags))
 
 is_empty(links)
 is_empty(movies)
@@ -138,7 +145,9 @@ is_empty(tags)
 # DIVISION CATEGORY OF FILMS ----------------------------------------------
 
 
-# joining files: Rating with movies and creating new csv RatMov-------------------------------------------
+                                                            # Joining files: Rating with movies and creating new csv RatMov
+
+
 
 RatMov<- merge(x=movies,y=Rating,by="movieId",all.x=TRUE)
 view(RatMov)
@@ -159,15 +168,19 @@ cols(
 )
 View(RatMov)
 
+#
+# Podsumowanie<- table(VecRat)
+# View(Podsumowanie)
 
-Podsumowanie<- table(VecRat)
-View(Podsumowanie)
+
+
+                                                          # DATA AGGREGATION_calculation for mean Rating for each films
 
 
 
-# *****************************************************************************************************DATA AGGREGATION_calculation for mean Rating for each films --------------------------------------------------------
 MeanRating_by_title<- round(tapply(RatMov$rating, RatMov$title, mean, na.rm=TRUE))
 class(MeanRating_by_title)# New result is class: array
+
 MeanRating<- as.data.frame.table(MeanRating_by_title) # changing array into data.frame
 colnames(MeanRating) #getting columnn name
 head(MeanRating)
@@ -178,15 +191,45 @@ class(MeanRating)#chacking corectness of changing class for MeanRatinf from arra
 sapply(MeanRating, class)#checking class of variable in data.frame
 MeanRating$Title<- as.character(MeanRating$Title)
 sapply(MeanRating, class)
-view(MeanRating)
+write.table(MeanRating, file = "MeanRating.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+
+MeanRating <- read_csv("R/MeanRating.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+)
+View(MeanRating)
 
 
-# Joining dataframes: MeanRating with movies for next statistic operations and checking the class of data--------
+                              # Joining dataframes: MeanRating with movies for next statistic operations and checking the class of data
+
+
 
 MeanRating_movies<- merge(x=MeanRating, y=movies[ ,c("movieId", "title", "genres")], by.x = "Title", by.y="title", all.x=TRUE)
 head(MeanRating_movies)
 class(MeanRating_movies)
 sapply(MeanRating_movies, class)
+
+write.table(MeanRating_movies, file = "MeanRating_movies.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+
+MeanRating_movies <- read_csv("R/MeanRating_movies.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+)
+View(MeanRating_movies)
+
+                                                              #ONLY 5, 4, 3, 2, 1----> CHOOSING FILMS AFTER RATINGS
+
+
 
 
 only5<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="5") #data sorted by rating
@@ -294,60 +337,56 @@ cols(
 )
 view(onlyNaN)
 
-#HISTOGRAM OF MEAN RATINGS
+
+# SPLITTING DATA FRAME STRING COLUMN INTO MULTIPLE COLUMNS
+
+# library(tidyr)
+# MeanRating_moviesSPl<- separate(MeanRating_movies, col = (Title), into = c("Title", "Year"), sep = " "
+#
+# MeanRating_moviesSPl
+#
+#
+                                                                                  #HISTOGRAM OF MEAN RATINGS
+
+
+
+# DATA FRAME ----> VECTOR;
 View(MeanRating)
 dim(MeanRating) #checking the dimension of the table for making a choice of breaks points
 MRVector<- as.vector(unlist(MeanRating$MeanRating)) #conversion column with MeanRating (column[2]) into vector to make possible visualisation of distribution of ratings
 view(MRVector)
+
+
+# OCCURENCES CHECKING
+Occurences_ratings<- table(MRVector)
+write.table(Occurences_ratings, file = "Occurences_ratings.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+view(Occurences_ratings)
+
+
+# HISTOGRAM OF MEAN RATING MADE FROM ALL DATA
+pdf("HISTOGRAM1.pdf")
+HiSTOGRAM1<- hist(MRVector, main = "Mean ratings distribution", xlab = "MeanRating", border = "black", col = "blue", xlim = c(1,5), breaks = 5)
+view(HiSTOGRAM1)
+dev.off()
+
+plot(HiSTOGRAM1)
+
+# CHECKING "0" AND "NaN" value in vector MeanRating
 unique(MRVector) #rating equal to 0 represents a missing value, they should be removed
-#the histrogram of mean ratings are shown below:
-hist(MRVector, main = "Mean ratings distribution", xlab = "MeanRating", border = "black", col = "blue", xlim = c(1,5), breaks = 5)
-#now we are remove "0" ---> invaluable movies and "NaN" - not a number
-MRVector<- MRVector[MRVector != 0 & MRVector !="NaN"]
-# the histogram after removin movies that have not been rated is shown below:
-hist(MRVector, main = "Mean ratings distribution without films that have not been rated and without NaN value", xlab = "MeanRating", border = "black", col = "green", xlim = c(1,4), breaks = 3)
+
+# Removing films with "0" ratings (films that have not been rating) and films with NaN (not a number) value
+MRVector2<- MRVector[MRVector != 0 & MRVector !="NaN"]
+view(MRVector2)
+
+# HISTOGRAM OF MEAN RATING MADE FROM DATA AFTER REMOVING MOVIES THAT HAVE NOT BEEN RATED AND WITH VALUE "NaN"
+pdf("HISTOGRAM2.pdf")
+HISTOGRAM2<- hist(MRVector2, main = "Mean ratings distribution without films that have not been rated and without NaN value", xlab = "MeanRating", border = "black", col = "green", xlim = c(1,3), breaks = 3)
+dev.off()
+
+
 
 #we have 9737 mean ratings (rated films), so
-
-hist(MRVector, main = "Mean ratings distribution", xlab = "MeanRating", border = "red", col = "blue", xlim = c(1,5), breaks = 5)
-# Occurance_ratings<- table(vector_ratings)
-Occurance_ratings<- table(MRVector)
-write.table(Occurance_ratings, file = "Occurance_ratings.csv", append = FALSE, sep = " ", dec = ".",
-            row.names = TRUE, col.names = TRUE)
-view(Occurance_ratings)
-
-
-
-
-
-
-
-# slotNames(MeanRating)
-
-
-only_five<- merge()
-  View(only_five)
-  # select(title, genres, rating)%>%
-  view(RatMov)
-
-A<- sqldf("select * from RatMov where rating=5")%>%
-  summarise(RatMov, MeanRating2 = mean(rating))%>%
-View(A)
-
-
-
-RatMov<- merge(x=movies,y=Rating,by="movieId",all.x=TRUE)%>%
-
-library(sqldf)
-ALLs<- sqldf("select * from RatMov")#DZIA?A KOMENDA
-Adventure<- sqldf("select * from RatMov where genres ")
-
-View(Adventure)
-
-
-data("MovieLense")
-Adventure<- sqldf("select * genres")
-
 
 #****************************************************** Filtering data by .... --------------------------------------------------
 
@@ -369,8 +408,6 @@ rnorm(RatMean_by_ID)
 
 
 
-
-
 ********************************************************# STATISTICS_OCCURANCE ----------------------------------------------------
 
 
@@ -387,15 +424,6 @@ VecRat<- as.vector(MovieLense@data)
 unique(VecRat)
 TablRat<- table(VecRat)
 TablRat
-
-# vector_ratings<- as.vector(MovieLense@data)
-# unique(vector_ratings)
-# table_ratings<- table(vector_ratings)
-# table_ratings
-# vector_ratings2<- vector_ratings[vector_ratings != 0]
-# # vector_ratings<- factor(vector_ratings)
-# ggplot(vector_ratings2)+ggtitle("Distribution of the ratings")
-
 
 
 # connection to DBI
@@ -422,82 +450,6 @@ Occurance_ratings<- table(vector_ratings)
 
 
 # TOP 5 FROM ACTION -------------------------------------------------------
-
-
-
-
-# a) rearraging data like "vertical search" in excel ----------------------
-
-# Top.melt<- melt(RatMov, id.vars = c("movieId"), measure.vars = "rating") #to jest raczej do tego uk?adu nie potrzebne na razie
-# head(TOP.melt)
-# view(Top.melt)
-
-
-# TOP.cast<- cast(TOP.melt, movieId~variable, mean)
-# view(TOP.cast)
-
-
-
-# b) calculate mean value of rating for each movieId and sorting them descending
-
-
-
-
-  # arrange(desc(rating))
-view(TOP5)
-
-# cast(TOP.melt, formula = ID, fun.aggregate = c(mean))
-
-
-# as.matrix(RatMov)
-# RatMov %>% mutate(meanrating =  if movieIdmean(RatMov$rating)}) %>%
-# view(RatMov)
-#                     group_by(movieId)%>%
-#
-#
-#   view(RatMov)
-#
-#
-# sapply(RatMov, class)
-# as.double(RatMov$rating)
-# mean(RatMov$rating, trim = 2)
-# sapply(RatMov, class)
-#
-#
-# Top5Action<- RatMov%>%
-#   # arrange(desc())%>%
-#   # group_by(ratingdate)%>%
-#   group_by(rating)%>%
-#   # summarise(mean(ratings))%>%
-#   arrange(desc(rating))%>%
-#   top_n(5)%>%
-# view(Top5Action)
-#
-# Top5Action<- RatMov%>%
-#   # arrange(desc())%>%
-#   # group_by(ratingdate)%>%
-#   group_by(title())%>%
-# view(Top5Action)
-#
-#
-#   # summarise(mean(ratings))%>%
-#   arrange(desc(rating))%>%
-#   top_n(5)%>%
-
-
-
-
-# Top5Action<- RatMov%>%
-#   as.double(rating)
-#   mutate(MeanRat=summarise(rating))
-#   arrange(desc(rating))%>%
-# view((Top5Action))
-#   # group_by(ratingdate)%>%
-#   # group_by(rating)%>%
-#   # summarise(mean(ratings))%>%
-#   arrange(desc(rating))%>%
-#   top_n(5)%>%
-#   view(Top5Action)
 
 
 # TOP 5 FROM ADVENTURE ----------------------------------------------------
@@ -552,122 +504,4 @@ view(TOP5)
 
 
 # TOP 5 FROM NO GENRES LISTED ---------------------------------------------
-
-
-
-#as.numeric(Sys.time()) to get the current epoch time in R
-links<- read.csv(file = 'ratings')
-
-
-# Data visualisation ------------------------------------------------------
-
-
-# You can learn more about package authoring with RStudio at:
-#
-#   http://r-pkgs.had.co.nz/
-#
-# Some useful keyboard shortcuts for package authoring:
-#
-#   Build and Reload Package:  'Ctrl + Shift + B'
-#   Check Package:             'Ctrl + Shift + E'
-#   Test Package:              'Ctrl + Shift + T'
-
-
-library(rsconnect)
-rsconnect:deployApp('D:\AGNIESZKA\WsbProject\WsbProjectAK')
-#add template
-library(library(shiny),
-
-        ui <- fluidPage(
-
-        ),
-
-        server <- function(input, output, session) {
-
-        }
-
-        shinyApp(ui, server))
-
-
-
-# install packages script
-
-install.packages(c("XLConnect",
-                   "RSQLite",
-                   "RODBC",
-                   "RJDBC",
-                   "XML",
-                   "methods",
-                   "dplyr",
-                   "lubridate",
-                   "stringr",
-                   "sqldf",
-                   "datasets",
-                   "ggplot2",
-                   "plotly",
-                   "maps",
-                   "mapdata",
-                   "countrycode",
-                   "flexdashboard",
-                   "rmarkdown"))
-
-
-# USEFULL -----------------------------------------------------------------
-
-install.packages(c("devtools", "ggplot2", "knitr", "yaml", "htmltools"))devtools::install_github("babynames", "hadley")devtools::install_github("shiny", "rstudio")devtools::install_github("rmarkdown", "rstudio")
-
-
-# USEFULL BUT NOT USED ANYMORE --------------------------------------------
-
-# View(ratings1)
-# # changing of format RagintDate into date with hour - command without "as.date"
-# as.POSIXlt(ratings1$RatingDate, origin="1970-01-01")
-# View(ratings1)
-#changing of format RatingDate from timestamp into date in UTC (without hours)
-# as.Date(as.POSIXlt(ratings1$RatingDate, origin="1970-01-01"))
-# sprawdzenie klas kolumny
-# sapply(ratings1,class)
-# #changing of column classes for RatingDate from "character" into "numeric"
-# ratings1$RatingDate = as.numeric(ratings1$RatingDate)
-# ***Changing format of the date ------------------------------------------
-# > value <- 1372657859
-#   > as.Date(as.POSIXct(value, origin="1970-01-01"))
-# [1] "2013-07-01"
-# SPOSOB
-# > as.POSIXct(value, origin="1970-01-01")
-# [1] "2013-07-01 11:20:59 IST"
-# then use lubridate package
-# ten kod dobrze zamienia timestamp na datę, gdy z=konkretna timestamp as.Date(as.POSIXlt(964982703, origin="1970-01-01"))
-# class(2019-05-11)
-# class(964982703)
-# class(timestamp)
-# class(964980868) #from column RatingDate
-# class(964983664) #from column timestamp of ratings1
-# class(1445715166) #from column timestamp of ratings
-
-#***Creating new table (ratings1) with changing name of Column name (timestamp-->DateOfrating) with changing format of date from unix into UTC -----------------
-# try(ratings)
-#
-# ratings1<- ratings %>%
-#   mutate(RatingDate = paste(ratings$timestamp, sep = "", collapse = NULL))
-# view(ratings1)
-
-# as.numeric(ratings1$RatingDate)
-
-
-
-# # &&& checking code for removing NA value on simple example ---------------
-#
-# try(Rating)
-# userID<- c(1,NA,3,4,5)
-# movieid<- c(6,7,8,9,10)
-# rating<- c(NA, 5, NA, 5, 4)
-# timestamp<- c(944982703,954982703,9634982703,964982703,964952703)
-# ratingdate<- c(2012, 2013, 2014, 2010, 2011)
-#
-# TESTDF<- data.frame(userID, movieid, rating, timestamp, ratingdate)
-# view(TESTDF)
-# ifelse (is.na(TESTDF), na.omit(TESTDF), newDF<- na.omit(TESTDF))
-# view(newDF)
-
 
