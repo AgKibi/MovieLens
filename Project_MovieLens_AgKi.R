@@ -361,7 +361,7 @@ view(MeanRatingRVector)
 
 # HISTOGRAM OF MEAN RATING MADE FROM ALL DATA
 pdf("HISTOGRAM1.pdf")
-HiSTOGRAM1<- hist(MRVector, main = "Mean ratings distribution", xlab = "MeanRating", border = "black", col = "blue", xlim = c(1,5), breaks = 5)
+HiSTOGRAM1<- hist(MeanRatingRVector, main = "Mean ratings distribution", xlab = "MeanRating", border = "black", col = "blue", xlim = c(1,5), breaks = 5)
 dev.off()
 view(HiSTOGRAM1)
 
@@ -370,21 +370,32 @@ plot(HiSTOGRAM1)
 
 
 # OCCURENCES CHECKING
-Occurences_ratings<- table(MRVector)
+Occurences_ratings<- table(MeanRatingRVector)
 write.table(Occurences_ratings, file = "Occurences_ratings.csv", append = FALSE, sep = " ", dec = ".",
             row.names = TRUE, col.names = TRUE)
 view(Occurences_ratings)
 
 
 # Creating vector from data.frame "Occurances" for further plot creating
-Occurences_ratings<- table(MRVector)
+Occurences_ratings<- table(MeanRatingRVector)
 class(Occurences_ratings)
 sapply(Occurences_ratings, class)
 
 # PIE CHART
 
-PIE<- pie(Occurences_ratings)
+# PIE<- pie(Occurences_ratings)
 
+RatingDistribution = c(Occurences_ratings)
+view(RatingDistribution)
+labels<- c("Not rated", "Rated for: 5", "Rated for: 4", "Rated for: 3", "Rated for: 2", "Rated for: 1" )
+pct<- round(RatingDistribution/sum(RatingDistribution)*100)
+labelsP<- paste(labels, pct)# addition percentage to labels
+lbls<- paste(labelsP, "%", sep="") # addition % to labels
+
+pdf("PieChart")
+    PieChart<- pie(RatingDistribution, labels = lbls, , col= rainbow(length(lbls)), main = "Pie chart of rating distribution")
+dev.off()
+view(PieChart)
 
 # # 3D Exploded Pie Chart
 # library(plotrix)
