@@ -4,7 +4,7 @@
 setwd(D:'AGNIESZKA/WsbProject/MovieLens/R')
 getwd()
 
-
+setwd('D:/AGNIESZKA/WsbProject/MovieLens')
                                                                                   # LOADING FILES
 library(readr)
 links <- read_csv("DbMovieLens/links.csv")
@@ -86,6 +86,7 @@ library(reshape2)
 library(recommenderlab)
 library(ggplot2)
 library(lattice) #histogram??funckje graficzne_Biecek str 364
+library(plotrix) # for 3D Pie Chart
 library(shiny)
 
                                                         # Creating new df "ratings1" with adding a new column "ratingdate" as copy of timestamp from ratings
@@ -353,8 +354,19 @@ view(onlyNaN)
 # DATA FRAME ----> VECTOR;
 View(MeanRating)
 dim(MeanRating) #checking the dimension of the table for making a choice of breaks points
-MRVector<- as.vector(unlist(MeanRating$MeanRating)) #conversion column with MeanRating (column[2]) into vector to make possible visualisation of distribution of ratings
-view(MRVector)
+MeanRatingRVector<- as.vector(unlist(MeanRating$MeanRating)) #conversion column with MeanRating (column[2]) into vector to make possible visualisation of distribution of ratings
+view(MeanRatingRVector)
+
+
+
+# HISTOGRAM OF MEAN RATING MADE FROM ALL DATA
+pdf("HISTOGRAM1.pdf")
+HiSTOGRAM1<- hist(MRVector, main = "Mean ratings distribution", xlab = "MeanRating", border = "black", col = "blue", xlim = c(1,5), breaks = 5)
+dev.off()
+view(HiSTOGRAM1)
+
+
+plot(HiSTOGRAM1)
 
 
 # OCCURENCES CHECKING
@@ -364,13 +376,23 @@ write.table(Occurences_ratings, file = "Occurences_ratings.csv", append = FALSE,
 view(Occurences_ratings)
 
 
-# HISTOGRAM OF MEAN RATING MADE FROM ALL DATA
-pdf("HISTOGRAM1.pdf")
-HiSTOGRAM1<- hist(MRVector, main = "Mean ratings distribution", xlab = "MeanRating", border = "black", col = "blue", xlim = c(1,5), breaks = 5)
-view(HiSTOGRAM1)
-dev.off()
+# Creating vector from data.frame "Occurances" for further plot creating
+Occurences_ratings<- table(MRVector)
+class(Occurences_ratings)
+sapply(Occurences_ratings, class)
 
-plot(HiSTOGRAM1)
+# PIE CHART
+
+PIE<- pie(Occurences_ratings)
+
+
+# # 3D Exploded Pie Chart
+# library(plotrix)
+# MRVector
+# slices <- c(10, 12, 4, 16, 8)
+# lbls <- c("US", "UK", "Australia", "Germany", "France")
+# pie3D(MRVector,labels=frequency(MeanRating$MeanRating),explode=0.1,
+#       main="Occurances")
 
 # CHECKING "0" AND "NaN" value in vector MeanRating
 unique(MRVector) #rating equal to 0 represents a missing value, they should be removed
@@ -386,25 +408,38 @@ dev.off()
 
 
 
+
+MeanRating_movies_T <- read.csv("D:/AGNIESZKA/WsbProject/MovieLens/MeanRating_movies_T.txt", encoding="UTF-8", sep="")
+View(MeanRating_movies_T)
+
+library(tidyselect)
+A<- select(MeanRating_movies$genres, contains("Drama"))
+view(A)
+
+class(MeanRating_movies_T)
+glimpse(MeanRating_movies)
+
+# M<- matrix(c(MeanRating_movies$Title), c(MeanRating_movies$MeanRating, C(MeanRating_movies$movieId), c(MeanRating_movies$genres)),
+#     nrow =  9742, ncol = 4, byrow = TRUE, dimnames = NULL)
+# M
+#
+# view(c1)
+# c2<- c(MeanRating$MeanRating)
+
 #we have 9737 mean ratings (rated films), so
 
-#****************************************************** Filtering data by .... --------------------------------------------------
+#****************************************************** recomender lab .... --------------------------------------------------
+library(recommenderlab)
+dim(RatMov)
+m<- matrix(RatMov, nrow=100854, ncol=7, byrow=TRUE, dimnames = NULL)
+view(m)
 
 
+class(RatMov)
+A<- select
+A<- RatMov[rowCounts(RatMov)>50]
+A
 
-
-# choosing films with best rating -----------------------------------------
-
-library(sqldf)
-select(MeanRating_by_title, )
-
-# summary for the ratings
-summary(RatMean_by_ID)
-view(summary(RatMean_by_ID)
-rnorm(RatMean_by_ID)
-
-#conclusion: mean value is almost the same as median value, so in next calculations we can use mean value and is equal 3.0; there are 18 occurance of .............
-# 0 valuses which means that ............
 
 
 
@@ -412,29 +447,6 @@ rnorm(RatMean_by_ID)
 
 
 
-
-# *************************************************************************RECOMMENDERLAB ----------------------------------------------------------
-
-data("MovieLense")
-MovieLense
-class(MovieLense)
-dim(MovieLense)
-image(as.matrix(similarity_users), main="User similarity")
-VecRat<- as.vector(MovieLense@data)
-unique(VecRat)
-TablRat<- table(VecRat)
-TablRat
-
-
-# connection to DBI
-con<- dbConnect((RSQLite::sQlite(), ":MovieLens:")
-dbConnect()
-data("MovieLense")
-dbListTables(conn = MovieLense)
-try(MovieLense)
-MovieLense
-
-ggplot(MovieLense@data)+ggtitle("XXX")
 
 
 average_ratings<- colMeans(MovieLense)
@@ -450,6 +462,12 @@ Occurance_ratings<- table(vector_ratings)
 
 
 # TOP 5 FROM ACTION -------------------------------------------------------
+library(sqldf)
+library(magrittr)
+library(stringr)
+A<- read.table(MeanRating)
+
+
 
 
 # TOP 5 FROM ADVENTURE ----------------------------------------------------
