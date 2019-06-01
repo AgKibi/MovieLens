@@ -357,6 +357,8 @@ dim(MeanRating) #checking the dimension of the table for making a choice of brea
 MeanRatingRVector<- as.vector(unlist(MeanRating$MeanRating)) #conversion column with MeanRating (column[2]) into vector to make possible visualisation of distribution of ratings
 view(MeanRatingRVector)
 
+# CHECKING "0" AND "NaN" value in vector MeanRating
+unique(MeanRatingRVector) #rating equal to 0 represents a missing value, they should be removed
 
 
 # HISTOGRAM OF MEAN RATING MADE FROM ALL DATA
@@ -387,7 +389,7 @@ sapply(Occurences_ratings, class)
 
 RatingDistribution = c(Occurences_ratings)
 view(RatingDistribution)
-labels<- c("Not rated", "Rated for: 5", "Rated for: 4", "Rated for: 3", "Rated for: 2", "Rated for: 1" )
+labels<- c("Not rated--->", "Rated for: 5--->", "Rated for: 4--->", "Rated for: 3--->", "Rated for: 2--->", "Rated for: 1--->" )
 pct<- round(RatingDistribution/sum(RatingDistribution)*100)
 labelsP<- paste(labels, pct)# addition percentage to labels
 lbls<- paste(labelsP, "%", sep="") # addition % to labels
@@ -397,16 +399,9 @@ pdf("PieChart")
 dev.off()
 view(PieChart)
 
-# # 3D Exploded Pie Chart
-# library(plotrix)
-# MRVector
-# slices <- c(10, 12, 4, 16, 8)
-# lbls <- c("US", "UK", "Australia", "Germany", "France")
-# pie3D(MRVector,labels=frequency(MeanRating$MeanRating),explode=0.1,
-#       main="Occurances")
 
-# CHECKING "0" AND "NaN" value in vector MeanRating
-unique(MRVector) #rating equal to 0 represents a missing value, they should be removed
+# pie3D(RatingDistribution, labels = lbls, labelcol = par ("fg"), labelcex = 1.5, explode = 0.1, main = "Pie Chart of rating distribution")
+
 
 # Removing films with "0" ratings (films that have not been rating) and films with NaN (not a number) value
 MRVector2<- MRVector[MRVector != 0 & MRVector !="NaN"]
@@ -419,118 +414,66 @@ dev.off()
 
 
 
+# TOP 5 FROM COMEDY -WITH SQL
 
-MeanRating_movies_T <- read.csv("D:/AGNIESZKA/WsbProject/MovieLens/MeanRating_movies_T.txt", encoding="UTF-8", sep="")
-View(MeanRating_movies_T)
-
-library(tidyselect)
-A<- select(MeanRating_movies$genres, contains("Drama"))
-view(A)
-
-class(MeanRating_movies_T)
-glimpse(MeanRating_movies)
-
-# M<- matrix(c(MeanRating_movies$Title), c(MeanRating_movies$MeanRating, C(MeanRating_movies$movieId), c(MeanRating_movies$genres)),
-#     nrow =  9742, ncol = 4, byrow = TRUE, dimnames = NULL)
-# M
-#
-# view(c1)
-# c2<- c(MeanRating$MeanRating)
-
-#we have 9737 mean ratings (rated films), so
-
-#****************************************************** recomender lab .... --------------------------------------------------
-library(recommenderlab)
-dim(RatMov)
-m<- matrix(RatMov, nrow=100854, ncol=7, byrow=TRUE, dimnames = NULL)
-view(m)
+# In SQL Server 2014 Managment Studio, create new database "AKDBMovieLens"---> than create new table "movies" in by loading the .csv file "movies"
+# For creating new table "movies": right click on the name of new database (AKDBMovieLens)---> choose "Tasks"---> Import Data ---> "Data sources" choose as "FlatFileFlask"
+# by commend:
+# select * from dbo.movies
+# where genres like 'Comedy'; ---> Execute
+# you will filter all comedies---> results writed down as .csv file named "Comedy" in folder set as "working directory" (for it: on the result dialog box do right click---> save result as)
+# new file "Comedy" load into R with library "readr"---> remember to check the delimiter (here: semicolon ";")
 
 
-class(RatMov)
-A<- select
-A<- RatMov[rowCounts(RatMov)>50]
-A
+library(readr)
+Comedy <- read_delim("Comedy.csv", ";", escape_double = FALSE,
+                     col_names = FALSE, trim_ws = TRUE)
+View(Comedy)
+class(Comedy)
+dim(Comedy) # checking the dimension of data.frame
+names(Comedy) #checking name of data.frame
+names(Comedy)[1]<- "movieId"
+names(Comedy)[2]<- "title"
+names(Comedy)[3]<- "genres"
+names(Comedy)
+head(Comedy)
+view(Comedy)
+
+MeanRating_Comedy<- merge(x=MeanRating, y=Comedy[ ,c("movieId", "title", "genres")], by.x = "Title", by.y="title", all.x=FALSE) # because not all of the movies from MeanRating data frame are comedy
+# all.x=false is set to not create the empty rows with "na"
+view(MeanRating_Comedy)
 
 
+write.table(MeanRating_Comedy, file = "MeanRating_Comedy.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
 
+MeanRating_Comedy <- read_csv("R/MeanRating_Comedy.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+)
+View(MeanRating_Comedy)
+sapply(MeanRating, class)
 
-********************************************************# STATISTICS_OCCURANCE ----------------------------------------------------
+MeanRating_Comedy_s<- sqldf("SELECT * from MeanRating_Comedy order by MeanRating desc")
+view(MeanRating_Comedy_s)
 
+Best_Comedy<- sqldf("SELECT * from MeanRating_Comedy_s where MeanRating=5")
+view(Best_Comedy)
 
+write.table(Best_Comedy, file = "Best_comedy.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
 
-
-
-average_ratings<- colMeans(MovieLense)
-average_ratings_relevant<- average_ratings[view_per_movie > 100]
-class(average_ratings)
-sapply(average_ratings, class)
-class(average_ratings)
-View(average_ratings)
-
-ggplot(average_ratings)+stat_bin(binwidth = 0,1) + ggtitle("Distribution of the average movie rating")
-
-Occurance_ratings<- table(vector_ratings)
-
-
-# TOP 5 FROM ACTION -------------------------------------------------------
-library(sqldf)
-library(magrittr)
-library(stringr)
-A<- read.table(MeanRating)
-
-
-
-
-# TOP 5 FROM ADVENTURE ----------------------------------------------------
-
-
-# TOP 5 FROM ANIMATION ----------------------------------------------------
-
-
-# TOP 5 FROM CHILDREN'S ---------------------------------------------------
-
-
-# TOP 5 FROM COMEDY -------------------------------------------------------
-
-
-# TOP 5 FROM CRIME --------------------------------------------------------
-
-
-# TOP 5 FROM DOCUMENTARY --------------------------------------------------
-
-
-# TOP 5 FROM DRAMA --------------------------------------------------------
-
-
-# TOP 5 FROM FANTASY ------------------------------------------------------
-
-
-# TOP 5 FROM FILM-NOIR ----------------------------------------------------
-
-
-# TOP 5 FROM HORROR -------------------------------------------------------
-
-
-# TOP 5 FROM MUSICAL ------------------------------------------------------
-
-
-# TOP 5 FROM MYSTERY ------------------------------------------------------
-
-
-# TOP 5 FROM ROMANCE ------------------------------------------------------
-
-
-# TOP 5 FROM SCI-FI -------------------------------------------------------
-
-
-# TOP 5 FROM THRILLER -----------------------------------------------------
-
-
-# TOP 5 FROM WAR ----------------------------------------------------------
-
-
-# TOP 5 FROM WESTERN ------------------------------------------------------
-
-
-# TOP 5 FROM NO GENRES LISTED ---------------------------------------------
+Best_Comedy <- read_csv("R/Best_Comedy.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+)
+View(Best_Comedy)
 
