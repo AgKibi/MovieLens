@@ -1,31 +1,65 @@
 ---
-title: "Project description"
+title: "Rekomendacja filmów na podstawie biblioteki MovieLens - podstawowe stastystyki"
 author: "Agnieszka Kibitlewska"
-date: "23 maja 2019"
-output: ioslides_presentation
+date: "31 maja 2019"
+output:
+  slidy_presentation: default
+  ioslides_presentation: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-## Projekt: "Rekomendacja filmów""
+## Projekt: "Rekomendacja filmĂłw""
 
-Celem projektu jest 
+Celem projektu jest analiza danych zawartych w bazie MovieLens w programie R oraz w bazie SQL, rekomendacja filmu dla zalogowanego użytkownika na podstawie ratingów biblioteki MovieLens z użyciem programu R i ostatecznie wyświetlenie wyniku na stronę html z wykorzystaniem django.
 
 ## Opis projektu
 
-Projekt został utworzony ....
+Projekt składa się z trzech części:
+  1. część I to wczytanie danych, wstępna obróbka danych, podstawowe statystyki w R, utworznie bazy danych w SQL, znalezienie nalepszych komedii   (z oceną "5")
+  2. część II to utworzenie kodu rekomendującego film z wykorzystaniem metody k-sąsiadów
+  3. część III to wyświetlenie danych na stronę
 
-## Slide with library description
-Niezbędne pakiety / Needed packages
-- Plyr
-Pakiet plyr służy do automatyzacji obliczeń na odpowiednio przygotowanej strukturze danyc
-- Reshape2
-Pakiet reshape2 służy do zmiany struktury zbioru danych
+## LIBRARY DESCRIPTION
+Niezbędne pakiety
+- Ply ---> Pakiet plyr służy do automatyzacji obliczeń„ na odpowiednio przygotowanej strukturze danyc
+- Reshape2 ---> służy do zmiany struktury zbioru danych
+
+
+```{r}
+library(dplyr)
+library(lubridate)
+library(stringr)
+library(tidyr)
+library(sqldf) # for select function
+library(magrittr) # for %>% conducting
+library (tidyverse) #for mutate
+library(rlang) #for last_error
+library(foreach)
+library(reshape)
+library(reshape2)
+library(recommenderlab)
+library(ggplot2)
+library(lattice) #histogram??funckje graficzne_Biecek str 364
+library(shiny)
+
+```
 
 
 
+```{r}
+library(readr)
+movies <- read_csv("DbMovieLens/movies.csv")
+View(movies)
+
+
+library(readr)
+ratings <- read_csv("DbMovieLens/ratings.csv")
+View(ratings)
+
+```
 
 ## Slide with Bullets
 
@@ -35,13 +69,22 @@ Pakiet reshape2 służy do zmiany struktury zbioru danych
 
 ## Slide with R Output
 
-```{r cars, echo = TRUE}
-summary(cars)
+```{r Project_MovieLens_AgKi, echo = TRUE}
+summary(MeanRating)
 ```
 
 ## Slide with Plot
 
-```{r pressure}
-plot(pressure)
+```{r Project_MovieLens_AgKi, echo = True}
+HiSTOGRAM1<- hist(MRVector, main = "Mean ratings distribution", xlab = "MeanRating", border = "black", col = "blue", xlim = c(1,5), breaks = 5)
+view((HiSTOGRAM1)
 ```
+```{r {r Project_MovieLens_AgKi, echo = TRUE}
+Occurences_ratings
+```
+
+```{r}
+
+```
+
 
