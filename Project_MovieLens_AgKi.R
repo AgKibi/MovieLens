@@ -1,10 +1,10 @@
 
                                                                                 # WorkingDirectory
 
-setwd(D:'AGNIESZKA/WsbProject/MovieLens/R')
-getwd()
 
 setwd('D:/AGNIESZKA/WsbProject/MovieLens')
+getwd()
+
                                                                                   # LOADING FILES
 library(readr)
 links <- read_csv("DbMovieLens/links.csv")
@@ -15,7 +15,7 @@ Parsed
     tmdbId = col_double()
   )
 View(links)
-
+head(links)
 
 library(readr)
 movies <- read_csv("DbMovieLens/movies.csv")
@@ -88,12 +88,16 @@ library(ggplot2)
 library(lattice) #histogram??funckje graficzne_Biecek str 364
 library(plotrix) # for 3D Pie Chart
 library(shiny)
+library(DT)
+library(reprex)# for regular expressions
+library(knitr)
 
                                                         # Creating new df "ratings1" with adding a new column "ratingdate" as copy of timestamp from ratings
                                                                     # changing date format from Epoch timestamp into readable date (GMT)
 Rating <- ratings %>%
   mutate(ratingdate = as.Date(as.POSIXlt(ratings$timestamp, origin="1970-01-01"))) %>%
 view(Rating, title = NULL)
+
 
                                                                                 # SAVING RESULTS AS .csv FILES  AND LOADING OF .csv FILES
 write.table(Rating, file = "Rating.csv", append = FALSE, sep = " ", dec = ".",
@@ -138,13 +142,6 @@ is_empty(Rating)
 is_empty(tags)
 
 
-# is.na(Rating)
-
-# SEPARATION DATE FROM TITLE ----------------------------------------------
-
-
-# DIVISION CATEGORY OF FILMS ----------------------------------------------
-
 
                                                             # Joining files: Rating with movies and creating new csv RatMov
 
@@ -154,7 +151,6 @@ RatMov<- merge(x=movies,y=Rating,by="movieId",all.x=TRUE)
 view(RatMov)
 class(RatMov)
 sapply(RatMov, class)
-  # select(title, genres, rating)%>%
 
 
 write.table(RatMov, file = "RatMov.csv", append = FALSE, sep = " ", dec = ".",
@@ -168,10 +164,6 @@ cols(
   tmdbId = col_double()
 )
 View(RatMov)
-
-#
-# Podsumowanie<- table(VecRat)
-# View(Podsumowanie)
 
 
 
@@ -194,6 +186,9 @@ MeanRating$Title<- as.character(MeanRating$Title)
 sapply(MeanRating, class)
 write.table(MeanRating, file = "MeanRating.csv", append = FALSE, sep = " ", dec = ".",
             row.names = TRUE, col.names = TRUE)
+SummaryRatings<- summary(MeanRating)
+view(SummaryRatings)
+
 
 MeanRating <- read_csv("R/MeanRating.csv")
 Parsed
@@ -228,7 +223,12 @@ cols(
 )
 View(MeanRating_movies)
 
-                                                              #ONLY 5, 4, 3, 2, 1----> CHOOSING FILMS AFTER RATINGS
+summary(MeanRating_movies)
+
+library(DT)
+datatable(MeanRating_movies)
+
+                                                              #Rated ONLY for 5, 4, 3, 2, 1----> CHOOSING FILMS AFTER RATINGS
 
 
 
@@ -248,8 +248,11 @@ cols(
   )
 view(only5)
 
-only4<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="4")#filter films only with MeanRating=5
+
+
+only4<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="4") #filter films only with MeanRating=5
 View(only4)
+
 write.table(only4, file = "only4.csv", append = FALSE, sep = " ", dec = ".",
             row.names = TRUE, col.names = TRUE)
 only4 <- read_csv("only4.csv")
@@ -339,14 +342,29 @@ cols(
 view(onlyNaN)
 
 
-# SPLITTING DATA FRAME STRING COLUMN INTO MULTIPLE COLUMNS
 
-# library(tidyr)
-# MeanRating_moviesSPl<- separate(MeanRating_movies, col = (Title), into = c("Title", "Year"), sep = " "
-#
-# MeanRating_moviesSPl
-#
-#
+
+                                                              # Regex_Rated for 5 but only "Drama" whenever in text  --------------------
+
+only5<- arrange(MeanRating_movies, desc(MeanRating))%>% filter(MeanRating=="5")
+only5Drama<- sqldf ("select * from only5Drama where genres like '%Drama%'")
+view(only5Drama)
+
+write.table(only5Drama, file = "only5Drama.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+
+only5Drama<- read_csv("only5Drama.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+)
+view(only5Drama)
+
+
+
                                                                                   #HISTOGRAM OF MEAN RATINGS
 
 
@@ -395,30 +413,20 @@ labelsP<- paste(labels, pct)# addition percentage to labels
 lbls<- paste(labelsP, "%", sep="") # addition % to labels
 
 pdf("PieChart")
-    PieChart<- pie(RatingDistribution, labels = lbls, , col= rainbow(length(lbls)), main = "Pie chart of rating distribution")
+    PieChart<- pie(RatingDistribution, labels = lbls, col= rainbow(length(lbls)), main = "Pie chart of rating distribution")
 dev.off()
 view(PieChart)
 
 
-# pie3D(RatingDistribution, labels = lbls, labelcol = par ("fg"), labelcex = 1.5, explode = 0.1, main = "Pie Chart of rating distribution")
 
+                                                  # *****************SELECTING BEST MOVIES WITH USING SQL******************* ------------
 
-# Removing films with "0" ratings (films that have not been rating) and films with NaN (not a number) value
-MRVector2<- MRVector[MRVector != 0 & MRVector !="NaN"]
-view(MRVector2)
-
-# HISTOGRAM OF MEAN RATING MADE FROM DATA AFTER REMOVING MOVIES THAT HAVE NOT BEEN RATED AND WITH VALUE "NaN"
-pdf("HISTOGRAM2.pdf")
-HISTOGRAM2<- hist(MRVector2, main = "Mean ratings distribution without films that have not been rated and without NaN value", xlab = "MeanRating", border = "black", col = "green", xlim = c(1,3), breaks = 3)
-dev.off()
-
-
-
-# TOP 5 FROM COMEDY -WITH SQL
+# Rated 5 FROM "COMEDY" -WITH SQL
 
 # In SQL Server 2014 Managment Studio, create new database "AKDBMovieLens"---> than create new table "movies" in by loading the .csv file "movies"
 # For creating new table "movies": right click on the name of new database (AKDBMovieLens)---> choose "Tasks"---> Import Data ---> "Data sources" choose as "FlatFileFlask"
 # by commend:
+# use AKDBMovieLens
 # select * from dbo.movies
 # where genres like 'Comedy'; ---> Execute
 # you will filter all comedies---> results writed down as .csv file named "Comedy" in folder set as "working directory" (for it: on the result dialog box do right click---> save result as)
@@ -476,4 +484,83 @@ cols(
   genres = col_character()
 )
 View(Best_Comedy)
+
+library(DT)
+datatable(Best_Comedy)
+
+
+
+
+
+# Rated 5 FROM "Action" -WITH SQL
+
+# In SQL Server 2014 Managment Studio, create new database "AKDBMovieLens"---> than create new table "movies" in by loading the .csv file "movies"
+# For creating new table "movies": right click on the name of new database (AKDBMovieLens)---> choose "Tasks"---> Import Data ---> "Data sources" choose as "FlatFileFlask"
+# by commend:
+# use AKDBMovieLens
+# select * from dbo.movies
+# where genres like 'Action'; ---> Execute
+# you will filter all comedies---> results writed down as .csv file named "Action" in folder set as "working directory" (for it: on the result dialog box do right click---> save result as)
+# new file "Action" load into R with library "readr"---> remember to check the delimiter (here: semicolon ";")
+
+
+library(readr)
+Action <- read_delim("Action.csv", ";", escape_double = FALSE,
+                     col_names = FALSE, trim_ws = TRUE)
+View(Action)
+class(Action)
+dim(Action) # checking the dimension of data.frame
+names(Action) #checking name of data.frame
+names(Action)[1]<- "movieId"
+names(Action)[2]<- "title"
+names(Action)[3]<- "genres"
+names(Action)
+head(Action)
+view(Action)
+
+MeanRating_Action<- merge(x=MeanRating, y=Action[ ,c("movieId", "title", "genres")], by.x = "Title", by.y="title", all.x=FALSE) # because not all of the movies from MeanRating data frame are comedy
+# all.x=false is set to not create the empty rows with "na"
+view(MeanRating_Action)
+
+
+write.table(MeanRating_Action, file = "MeanRating_Action.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+
+MeanRating_Action <- read_csv("R/MeanRating_Action.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+)
+View(MeanRating_Action)
+sapply(MeanRating, class)
+
+MeanRating_Action_s<- sqldf("SELECT * from MeanRating_Action order by MeanRating desc")
+view(MeanRating_Action_s)
+
+Best_Action<- sqldf("SELECT * from MeanRating_Action_s where MeanRating=5")
+view(Best_Action)
+
+write.table(Best_Action, file = "Best_Action.csv", append = FALSE, sep = " ", dec = ".",
+            row.names = TRUE, col.names = TRUE)
+
+Best_Action <- read_csv("R/Best_Action.csv")
+Parsed
+cols(
+  Title = col_character(),
+  MeanRating = col_double(),
+  movieId = col_double(),
+  genres = col_character()
+)
+View(Best_Comedy)
+
+library(DT)
+datatable(Best_Action)
+
+
+
+
+
 

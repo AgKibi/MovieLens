@@ -1,0 +1,211 @@
+REKOMENDACJE  V.1
+========================================================
+author: 
+date: 
+autosize: true
+
+Autorzy 
+========================================================
+
+- Kacper Biernacki
+- Szymon Matyla
+- Agnieszka Kibitlewska
+
+Cel projektu
+========================================================
+
+- analiza danych zawartych w bazie MovieLens w programie R oraz w bazie SQL, 
+- rekomendacja filmu 
+- wyĹ›wietlenie wyniku na stronÄ™ html z wykorzystaniem django
+
+
+Opis projektu
+========================================================
+Projekt skĹ‚ada siÄ™ z trzech czÄ™Ĺ›ci:
+  - czÄ™Ĺ›Ä‡ I to wczytanie danych, wstÄ™pna obrĂłbka danych, podstawowe statystyki w R, utworzenie bazy danych w SQL, znalezienie nalepszych komedii i akcji (z ocenÄ… "5")
+  - czÄ™Ĺ›Ä‡ II to utworzenie kodu rekomendujÄ…cego film
+  - czÄ™Ĺ›Ä‡ III to wyĹ›wietlenie danych na stronÄ™
+
+
+UĹĽyte programy/techniki
+========================================================
+  1. R    - wczytanie danych
+          - wstÄ™pna obĂłrkba danych
+          - podsumowania/statystyki
+          - wizualizacje
+  2. SQL  - prostsze niĹĽ w R wyszukiwanie danych
+  
+  3. Django
+  
+  4. RMarkdown
+          - utworznie prezentacji
+          
+  5. GIT  - kontrola wersji
+  
+  6. GITHub
+          - wspĂłĹ‚dzielenie i zarzÄ…dzanie projektem
+
+
+
+UĹĽyte biblioteki R
+========================================================
+  1. library (tidyverse) - pakiet umoĹĽliwiajÄ…cy manipulacjÄ™ danymi - w projekckie uĹĽyty do obsĹ‚ugi funkcji "mutate()",
+                    - jego podpakiety to: dplyr (do ramek danych), lplyr (do list),
+                    - ggplot2,
+                    - readr
+                    - stringr
+                    
+  2. library(readr) - wczytanie danych z plikĂłw .csv
+
+  3. library(dplyr) - to pakiet umoĹĽliwiajÄ…cy manipulacjÄ™ danymi
+              - jest to czÄ™Ĺ›Ä‡ wiÄ™kszego pakietu tidyverse
+              - rdzeĹ„ dplyr zawarty jest w pakiecie plyr; jest przeznaczony do pracy na ramkach danych
+              - niezbÄ™dny do obsĹ‚ugi funkcji takich jak: apply(), tapply(), aggregate(), filter(), group by()
+  4. library(lubridate) - niezastÄ…piony pakiet podczas pracy z datami
+                  - to funkcje takie jak: is.Date, is.POSIXct, as_date
+
+
+UĹĽyte biblioteki
+========================================================
+  5. library(stringr)
+                    - mapipulacja danymi, gĹ‚Ăłwnie operacje na tekĹ›cie
+  6. library(tidyr)
+                    - manipulacja danymi, tabele danych
+  7. ibrary(sqldf) 
+                      - aby moĹĽliwa byĹ‚a obsĹ‚uga funcji "select"
+  8. library(magrittr)
+                      - for %>% conducting
+
+  9. library(rlang)  - obsĹ‚uga funcji "last_error" umoĹĽliwiajÄ…cej Ĺ‚atwiejszsze rozwiÄ…zywanie pojawiajÄ…cych siÄ™ bĹ‚Ä™dĂłw
+  10. library(foreach)
+  11. library(reshape2) 
+                      - przeksztaĹ‚canie tabeli do innej postaci
+                      
+ UĹĽyte biblioteki
+========================================================                     
+                      
+  12. library(recommenderlab) .................
+  13. library(ggplot2) 
+                      - niezbÄ™dny pakiet do tworzenia wizualizacji takich jak:
+                      krzywe kalibracyjne, wykresy koĹ‚owe ("pie chart")
+  14. library(lattice) 
+                    - przy tworzenie histogramĂłw
+  15. library(plotrix) 
+                    - for 3D Pie Chart
+  16. library(DT)
+                    - aby tabele mogĹ‚y byÄ‡ interaktywn
+  17. library(reprex) 
+                    - do obsĹ‚ugi wyraĹĽeĹ„ regularnych
+                    - tutaj: genres like '%Drama%'"
+  18. library(knitr)
+                    - obsĹ‚uga rmarkdown
+                    
+                    
+UĹĽyte biblioteki
+========================================================
+  10. library(foreach)
+                      - .........................
+  11. library(reshape2) 
+                      - przeksztaĹ‚canie tabeli do innej postaci
+  12. library(recommenderlab)
+  13. library(ggplot2) 
+                      - niezbÄ™dny pakiet do tworzenia wizualizacji takich jak:
+                      krzywe kalibracyjne, wykresy koĹ‚owe ("pie chart")
+  14. library(lattice) 
+                    - przy tworzenie histogramĂłw
+  15. library(plotrix) 
+                    - for 3D Pie Chart
+  16. library(DT)
+                    - aby tabele mogĹ‚y byÄ‡ interaktywn
+  17. library(reprex) 
+                    - do obsĹ‚ugi wyraĹĽeĹ„ regularnych
+                    - tutaj: genres like '%Drama%'"
+  18. library(knitr)
+                    - obsĹ‚uga rmarkdown
+
+Ładowanie plików źródłowych - head
+========================================================
+
+![xxxx](yyyyyyyyyyy.png)
+
+
+
+
+Klasa plików źródłowych oraz klasa kolumn w plikach źródłowych
+========================================================
+#
+
+![Class of files and columns](class_files_column_1.png)
+
+
+
+Histogram ocen - bezpośrednio z kodu
+========================================================
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(knitr)
+source('Project_MovieLens_AgKi.R')
+plot(HiSTOGRAM1)
+```
+
+
+Histogram ocen
+========================================================
+#
+
+![Histogram ocen](Histogram ocen.png)
+
+
+Najlepsze komedie
+========================================================
+```{r}
+library(DT)
+datatable(Best_Comedy)
+
+
+```
+
+Wykres kołowy ocen
+========================================================
+
+![Wykres kołowy ratingów](Pie chart of rating distribution.png)
+
+
+Strona "Rekomendacje""
+========================================================
+
+![Rekomendacje](Rekomendacje_website.png)
+
+
+Lista filmów na stronie "Rekomendacje"
+========================================================
+
+![Lista filmów](Lista filmów.png)
+
+
+
+
+Slide With Code
+========================================================
+```{r echo=TRUE}
+library(DT)
+datatable(Best_Action)
+```
+
+
+Slide With Code
+========================================================
+
+Slide With Code
+========================================================
+
+```{r echo=TRUE}
+summary(cars)
+```
+
+Slide With Plot
+========================================================
+
+```{r, echo=FALSE}
+plot(cars)
+```
